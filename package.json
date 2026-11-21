@@ -10,7 +10,10 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "prebuild": "prisma generate",
+    "predev": "prisma generate",
+    "prestart": "prisma generate"
   },
   "type": "commonjs",
   "dependencies": {
