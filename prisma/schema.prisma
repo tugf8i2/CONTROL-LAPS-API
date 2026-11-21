@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  GUARDA
+  INSTRUCTOR
+}
+
+enum RoomStatus {
+  OPERATIVO
+  MANTENIMIENTO
+  INACTIVO
+}
+
+enum EquipmentType {
+  COMPUTADOR
+  MOUSE
+  TECLADO
+  CARGADOR
+  TELEVISOR
+  CONTROL_TV
+  OTRO
+}
+
+enum EquipmentStatus {
+  OPERATIVO
+  MANTENIMIENTO
+  FUERA_SERVICIO
+}
+
+enum LoanStatus {
+  PENDIENTE_APROBACION
+  APROBADO_Y_FIRMADO
+}
+
+enum IncidentPriority {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum IncidentStatus {
+  PENDIENTE
+  EN_PROCESO
+  RESUELTA
+}
+
+model User {
+  id          String    @id @default(uuid())
+  nombre      String
+  email       String    @unique
+  rol         UserRole
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  instructorLoans Loan[] @relation("InstructorLoans")
+  guardLoans Loan[] @relation("GuardLoans")
+  incidents Incident[] @relation("IncidentReporter")
+  resolvedIncidents Incident[] @relation("IncidentResolver")
+}
+
+model Room {
+  id           String      @id @default(uuid())
+  nombre       String      @unique
+  bloque       String
+  capacidadPcs Int
+  estado       RoomStatus  @default(OPERATIVO)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  equipment    Equipment[]
+  loans        Loan[]
+}
+
+model Equipment {
+  id          String          @id @default(uuid())
+  placaSena   String          @unique
+  codigoActivo String          @unique
+  tipo        EquipmentType
+  estado      EquipmentStatus @default(OPERATIVO)
+  roomId      String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  room        Room            @relation(fields: [roomId], references: [id])
+  incidents   Incident[]
+}
+
+model Loan {
+  id           String     @id @default(uuid())
+  roomId       String
+  instructorId String
+  guardaId      String
+  numeroPc      Int
+  estado        LoanStatus @default(PENDIENTE_APROBACION)
+  acceptedAt    DateTime?
+  returnedAt    DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  room          Room       @relation(fields: [roomId], references: [id])
+  instructor    User       @relation("InstructorLoans", fields: [instructorId], references: [id])
+  guarda        User       @relation("GuardLoans", fields: [guardaId], references: [id])
+}
+
+model Incident {
+  id          String           @id @default(uuid())
+  equipmentId String
+  reporterId  String
+  description String
+  prioridad   IncidentPriority @default(MEDIA)
+  estado      IncidentStatus  @default(PENDIENTE)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  equipment   Equipment        @relation(fields: [equipmentId], references: [id])
+  reporter    User             @relation("IncidentReporter", fields: [reporterId], references: [id])
+  resolver    User?            @relation("IncidentResolver", fields: [resolvedBy], references: [id])
+}

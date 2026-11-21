@@ -1,18 +1,20 @@
 {
-  "name": "rest-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "controllabs-api",
+  "version": "1.1.0",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
-
+    "start": "node dist/server.js",
+    "test": "node --test",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio"
   },
-  "keywords": [],
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^7.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.6",
     "express": "^5.2.1"
@@ -21,7 +23,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
-    "nodemon": "^3.1.14",
+    "prisma": "^7.0.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
