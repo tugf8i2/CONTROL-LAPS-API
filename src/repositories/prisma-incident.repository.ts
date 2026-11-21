@@ -1,6 +1,6 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
-import type { ICreateIncidentDTO } from "../dtos/incident.dto.js";
-import type { Incident, IncidentFilters, IncidentRepository, IncidentStatus } from "./incident.repository.js";
+import type { ICreateIncidentDTO, IncidentStatus } from "../dtos/incident.dto.js";
+import type { Incident, IncidentFilters, IncidentRepository } from "./incident.repository.js";
 
 type IncidentRow = {
   id: bigint;
