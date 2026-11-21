@@ -1,35 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
-import { ICreateAmbienteDTO } from '../dtos/ambiente.dto';
+import { isNonEmptyString, isRecord, validateBody } from './validation.middleware';
 
-const isCreateAmbienteDTO = (value: unknown): value is ICreateAmbienteDTO => {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return false;
-  }
-
-  const ambiente = value as Record<string, unknown>;
-  return (
-    typeof ambiente.aula === 'string' && ambiente.aula.trim() !== '' &&
-    typeof ambiente.numeroPC === 'string' && /^\d+$/.test(ambiente.numeroPC) &&
-    Number(ambiente.numeroPC) > 0 &&
-    typeof ambiente.nombreGuardaEntrega === 'string' && ambiente.nombreGuardaEntrega.trim() !== '' &&
-    typeof ambiente.instructorRecibe === 'string' && ambiente.instructorRecibe.trim() !== ''
-  );
+const isValidRoom = (value: unknown): boolean => {
+  if (!isRecord(value)) return false;
+  return isNonEmptyString(value.nombre) &&
+    isNonEmptyString(value.bloque) &&
+    typeof value.capacidadPcs === 'number' &&
+    Number.isInteger(value.capacidadPcs) &&
+    value.capacidadPcs >= 0 &&
+    (value.estado === undefined || ['OPERATIVO', 'MANTENIMIENTO', 'INACTIVO'].includes(String(value.estado)));
 };
 
-export const validateAmbientePayload = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-  const body: unknown = req.body;
-
-  if (!isCreateAmbienteDTO(body)) {
-    res.status(400).json({
-      success: false,
-      error: 'Datos del ambiente inválidos. Revisa aula, numeroPC, nombreGuardaEntrega e instructorRecibe.'
-    });
-    return;
-  }
-
-  next();
-};
+export const validateAmbientePayload = validateBody(
+  isValidRoom,
+  'Datos del ambiente inválidos. Revisa nombre, bloque, capacidadPcs y estado.'
+);

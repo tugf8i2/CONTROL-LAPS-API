@@ -1,17 +1,18 @@
 {
-  "name": "rest-api",
+  "name": "controllabs-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API de gestión de ambientes, inventario, préstamos y novedades",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
-
+    "start": "node dist/server.js",
+    "test": "npm run build && node --test"
   },
-  "keywords": [],
   "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^18.0.6",

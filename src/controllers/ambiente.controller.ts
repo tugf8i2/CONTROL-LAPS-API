@@ -1,33 +1,26 @@
 import type { Request, Response } from 'express';
+import { roomService } from '../container';
 
 export class AmbienteController {
-  public static getAll = (_req: Request, res: Response): void => {
-    res.status(501).json({
-      success: false,
-      message: 'La consulta de ambientes todavía no está implementada.'
-    });
+  static getAll = (req: Request, res: Response): void => {
+    const estado = typeof req.query.estado === 'string' ? req.query.estado : undefined;
+    const bloque = typeof req.query.bloque === 'string' ? req.query.bloque : undefined;
+    res.status(200).json({ success: true, data: roomService.list({ estado, bloque }) });
   };
 
-  public static getLoansByFilter = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    res.status(501).json({
-      success: false,
-      message: `La consulta del ambiente ${id} todavía no está implementada.`
-    });
+  static getById = (req: Request, res: Response): void => {
+    res.status(200).json({ success: true, data: roomService.getById(req.params.id) });
   };
 
-  public static create = (req: Request, res: Response): void => {
-    res.status(501).json({
-      success: false,
-      message: 'El registro de ambientes todavía no está implementado.'
-    });
+  static create = (req: Request, res: Response): void => {
+    res.status(201).json({ success: true, data: roomService.create(req.body) });
   };
 
-  public static update = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    res.status(501).json({
-      success: false,
-      message: `La actualización del ambiente ${id} todavía no está implementada.`
-    });
+  static update = (req: Request, res: Response): void => {
+    res.status(200).json({ success: true, data: roomService.update(req.params.id, req.body) });
+  };
+
+  static setStatus = (req: Request, res: Response): void => {
+    res.status(200).json({ success: true, data: roomService.setStatus(req.params.id, req.body.estado) });
   };
 }

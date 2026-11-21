@@ -1,33 +1,46 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+import { DomainError } from '../errors/domain.error';
+
+const statusByCode = {
+  VALIDATION_ERROR: 400,
+  NOT_FOUND: 404,
+  CONFLICT: 409
+} as const;
 
 export const globalErrorHandler = (
-    err: unknown,
-    _req: Request,
-    res: Response,
-    next: NextFunction
+  err: unknown,
+  _req: Request,
+  res: Response,
+  next: NextFunction
 ): void => {
-    if (res.headersSent) {
-        next(err);
-        return;
-    }
+  if (res.headersSent) {
+    next(err);
+    return;
+  }
 
-    if (
-        typeof err === 'object' &&
-        err !== null &&
-        'type' in err &&
-        err.type === 'entity.parse.failed'
-    ) {
-        res.status(400).json({
-            success: false,
-            error: 'El cuerpo JSON está malformado.'
-        });
-        return;
-    }
-
-    console.error(err);
-    res.status(500).json({
-        status: 'error',
-        message: 'Error interno del servidor en ControlLabs',
-        timestamp: new Date().toISOString()
+  if (err instanceof DomainError) {
+    res.status(statusByCode[err.code]).json({
+      success: false,
+      code: err.code,
+      error: err.message
     });
+    return;
+  }
+
+  if (typeof err === 'object' && err !== null && 'type' in err && err.type === 'entity.parse.failed') {
+    res.status(400).json({
+      success: false,
+      code: 'INVALID_JSON',
+      error: 'El cuerpo JSON está malformado.'
+    });
+    return;
+  }
+
+  console.error(err);
+  res.status(500).json({
+    success: false,
+    code: 'INTERNAL_SERVER_ERROR',
+    error: 'Error interno del servidor en ControlLabs',
+    timestamp: new Date().toISOString()
+  });
 };
