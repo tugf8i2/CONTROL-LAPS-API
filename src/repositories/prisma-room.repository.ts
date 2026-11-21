@@ -1,4 +1,4 @@
-import { prisma } from "../db/prisma.js";
+import type { PrismaClient } from "../generated/prisma/client.js";
 import type { ICreateAmbienteDTO, IUpdateAmbienteDTO } from "../dtos/ambiente.dto.js";
 import type { Room, RoomFilters, RoomRepository } from "./room.repository.js";
 
@@ -11,13 +11,15 @@ type RoomRow = {
 };
 
 export class PrismaRoomRepository implements RoomRepository {
+  constructor(private readonly database: PrismaClient) {}
+
   async create(input: ICreateAmbienteDTO): Promise<Room> {
-    const row = await prisma.room.create({ data: input });
+    const row = await this.database.room.create({ data: input });
     return this.toDomain(row);
   }
 
   async findAll(filters: RoomFilters = {}): Promise<Room[]> {
-    const rows = await prisma.room.findMany({
+    const rows = await this.database.room.findMany({
       where: {
         ...(filters.estado ? { estado: filters.estado } : {}),
         ...(filters.bloque ? { bloque: { contains: filters.bloque, mode: "insensitive" } } : {})
@@ -28,19 +30,19 @@ export class PrismaRoomRepository implements RoomRepository {
   }
 
   async findById(id: string): Promise<Room | null> {
-    const row = await prisma.room.findUnique({ where: { id } });
+    const row = await this.database.room.findUnique({ where: { id } });
     return row ? this.toDomain(row) : null;
   }
 
   async findByName(nombre: string): Promise<Room | null> {
-    const row = await prisma.room.findUnique({ where: { nombre } });
+    const row = await this.database.room.findUnique({ where: { nombre } });
     return row ? this.toDomain(row) : null;
   }
 
   async update(id: string, changes: IUpdateAmbienteDTO): Promise<Room | null> {
-    const exists = await prisma.room.findUnique({ where: { id }, select: { id: true } });
+    const exists = await this.database.room.findUnique({ where: { id }, select: { id: true } });
     if (!exists) return null;
-    const row = await prisma.room.update({ where: { id }, data: changes });
+    const row = await this.database.room.update({ where: { id }, data: changes });
     return this.toDomain(row);
   }
 

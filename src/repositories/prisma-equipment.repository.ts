@@ -1,4 +1,4 @@
-import { prisma } from "../db/prisma.js";
+import type { PrismaClient } from "../generated/prisma/client.js";
 import type { ICreateEquipoDTO, IUpdateEquipoDTO } from "../dtos/equipo.dto.js";
 import type { Equipment, EquipmentFilters, EquipmentRepository } from "./equipment.repository.js";
 
@@ -19,8 +19,10 @@ type EquipmentRow = {
 };
 
 export class PrismaEquipmentRepository implements EquipmentRepository {
+  constructor(private readonly database: PrismaClient) {}
+
   async create(input: ICreateEquipoDTO): Promise<Equipment> {
-    const row = await prisma.equipment.create({
+    const row = await this.database.equipment.create({
       data: input,
       include: { room: true }
     });
@@ -28,7 +30,7 @@ export class PrismaEquipmentRepository implements EquipmentRepository {
   }
 
   async findAll(filters: EquipmentFilters = {}): Promise<Equipment[]> {
-    const rows = await prisma.equipment.findMany({
+    const rows = await this.database.equipment.findMany({
       where: {
         ...(filters.roomId ? { roomId: filters.roomId } : {}),
         ...(filters.estado ? { estado: filters.estado } : {}),
@@ -41,7 +43,7 @@ export class PrismaEquipmentRepository implements EquipmentRepository {
   }
 
   async findById(id: string): Promise<Equipment | null> {
-    const row = await prisma.equipment.findUnique({
+    const row = await this.database.equipment.findUnique({
       where: { id },
       include: { room: true }
     });
@@ -49,7 +51,7 @@ export class PrismaEquipmentRepository implements EquipmentRepository {
   }
 
   async findByPlaca(placaSena: string): Promise<Equipment | null> {
-    const row = await prisma.equipment.findUnique({
+    const row = await this.database.equipment.findUnique({
       where: { placaSena },
       include: { room: true }
     });
@@ -57,7 +59,7 @@ export class PrismaEquipmentRepository implements EquipmentRepository {
   }
 
   async findByAssetCode(codigoActivo: string): Promise<Equipment | null> {
-    const row = await prisma.equipment.findUnique({
+    const row = await this.database.equipment.findUnique({
       where: { codigoActivo },
       include: { room: true }
     });
@@ -65,15 +67,15 @@ export class PrismaEquipmentRepository implements EquipmentRepository {
   }
 
   countComputersInRoom(roomId: string): Promise<number> {
-    return prisma.equipment.count({
+    return this.database.equipment.count({
       where: { roomId, tipo: "COMPUTADOR" }
     });
   }
 
   async update(id: string, changes: IUpdateEquipoDTO): Promise<Equipment | null> {
-    const exists = await prisma.equipment.findUnique({ where: { id }, select: { id: true } });
+    const exists = await this.database.equipment.findUnique({ where: { id }, select: { id: true } });
     if (!exists) return null;
-    const row = await prisma.equipment.update({
+    const row = await this.database.equipment.update({
       where: { id },
       data: changes,
       include: { room: true }
