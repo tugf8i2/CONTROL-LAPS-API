@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { equipmentService } from '../container';
+import { getRouteParam } from '../utils/route-param';
 
 export class EquipoController {
   static getAll = (req: Request, res: Response): void => {
@@ -10,7 +11,8 @@ export class EquipoController {
   };
 
   static getById = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: equipmentService.getById(req.params.id) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: equipmentService.getById(id) });
   };
 
   static create = (req: Request, res: Response): void => {
@@ -18,10 +20,12 @@ export class EquipoController {
   };
 
   static update = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: equipmentService.update(req.params.id, req.body) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: equipmentService.update(id, req.body) });
   };
 
   static move = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: equipmentService.move(req.params.id, req.body.roomId) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: equipmentService.move(id, req.body.roomId) });
   };
 }

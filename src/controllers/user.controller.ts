@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { userService } from '../container';
+import { getRouteParam } from '../utils/route-param';
 
 export class UserController {
   static getAll = (req: Request, res: Response): void => {
@@ -13,18 +14,22 @@ export class UserController {
   };
 
   static getUserById = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: userService.getById(req.params.id) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: userService.getById(id) });
   };
 
   static update = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: userService.update(req.params.id, req.body) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: userService.update(id, req.body) });
   };
 
   static setActive = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: userService.setActive(req.params.id, req.body.activo) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: userService.setActive(id, req.body.activo) });
   };
 
   static remove = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: userService.setActive(req.params.id, false) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: userService.setActive(id, false) });
   };
 }

@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { roomService } from '../container';
+import { getRouteParam } from '../utils/route-param';
 
 export class AmbienteController {
   static getAll = (req: Request, res: Response): void => {
@@ -9,7 +10,8 @@ export class AmbienteController {
   };
 
   static getById = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: roomService.getById(req.params.id) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: roomService.getById(id) });
   };
 
   static create = (req: Request, res: Response): void => {
@@ -17,10 +19,12 @@ export class AmbienteController {
   };
 
   static update = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: roomService.update(req.params.id, req.body) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: roomService.update(id, req.body) });
   };
 
   static setStatus = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: roomService.setStatus(req.params.id, req.body.estado) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: roomService.setStatus(id, req.body.estado) });
   };
 }

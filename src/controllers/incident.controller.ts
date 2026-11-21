@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { incidentService } from '../container';
+import { getRouteParam } from '../utils/route-param';
 
 export class IncidentController {
   static getAll = (req: Request, res: Response): void => {
@@ -13,7 +14,8 @@ export class IncidentController {
   };
 
   static getById = (req: Request, res: Response): void => {
-    res.status(200).json({ success: true, data: incidentService.getById(req.params.id) });
+    const id = getRouteParam(req.params.id, 'id');
+    res.status(200).json({ success: true, data: incidentService.getById(id) });
   };
 
   static create = (req: Request, res: Response): void => {
@@ -21,9 +23,10 @@ export class IncidentController {
   };
 
   static updateStatus = (req: Request, res: Response): void => {
+    const id = getRouteParam(req.params.id, 'id');
     res.status(200).json({
       success: true,
-      data: incidentService.updateStatus(req.params.id, req.body)
+      data: incidentService.updateStatus(id, req.body)
     });
   };
 }
