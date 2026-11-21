@@ -1,6 +1,15 @@
+export type RoomStatus = "OPERATIVO" | "MANTENIMIENTO" | "INACTIVO";
+
 export interface ICreateAmbienteDTO {
-  aula: string;
-  numeroPC: string;
-  nombreGuardaEntrega: string;
-  instructorRecibe: string;
+  nombre: string;
+  bloque: string;
+  capacidadPcs: number;
+  estado?: RoomStatus;
+}
+
+export interface IUpdateAmbienteDTO {
+  nombre?: string;
+  bloque?: string;
+  capacidadPcs?: number;
+  estado?: RoomStatus;
 }

@@ -1,35 +1,50 @@
-import { Request, Response, NextFunction } from 'express';
-import { ICreateAmbienteDTO } from '../dtos/ambiente.dto';
+import type { Request, Response, NextFunction } from "express";
 
-const isCreateAmbienteDTO = (value: unknown): value is ICreateAmbienteDTO => {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return false;
-  }
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
 
-  const ambiente = value as Record<string, unknown>;
-  return (
-    typeof ambiente.aula === 'string' && ambiente.aula.trim() !== '' &&
-    typeof ambiente.numeroPC === 'string' && /^\d+$/.test(ambiente.numeroPC) &&
-    Number(ambiente.numeroPC) > 0 &&
-    typeof ambiente.nombreGuardaEntrega === 'string' && ambiente.nombreGuardaEntrega.trim() !== '' &&
-    typeof ambiente.instructorRecibe === 'string' && ambiente.instructorRecibe.trim() !== ''
-  );
+const isStatus = (value: unknown): boolean =>
+  value === "OPERATIVO" || value === "MANTENIMIENTO" || value === "INACTIVO";
+
+const isRoomPayload = (value: unknown, partial: boolean): boolean => {
+  if (!isRecord(value)) return false;
+  const allowed = new Set(["nombre", "bloque", "capacidadPcs", "estado"]);
+  if (Object.keys(value).some((key) => !allowed.has(key))) return false;
+
+  const validNombre = value.nombre === undefined
+    ? partial
+    : typeof value.nombre === "string" && value.nombre.trim().length > 0;
+  const validBloque = value.bloque === undefined
+    ? partial
+    : typeof value.bloque === "string" && value.bloque.trim().length > 0;
+  const validCapacity = value.capacidadPcs === undefined
+    ? partial
+    : typeof value.capacidadPcs === "number" && Number.isInteger(value.capacidadPcs);
+  const validStatus = value.estado === undefined ? true : isStatus(value.estado);
+
+  return Object.keys(value).length > 0 && validNombre && validBloque && validCapacity && validStatus;
 };
 
-export const validateAmbientePayload = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-  const body: unknown = req.body;
-
-  if (!isCreateAmbienteDTO(body)) {
+export const validateAmbientePayload = (req: Request, res: Response, next: NextFunction): void => {
+  if (!isRoomPayload(req.body, false)) {
     res.status(400).json({
       success: false,
-      error: 'Datos del ambiente inválidos. Revisa aula, numeroPC, nombreGuardaEntrega e instructorRecibe.'
+      code: "VALIDATION_ERROR",
+      error: "Datos del ambiente inválidos. Revisa nombre, bloque, capacidadPcs y estado."
     });
     return;
   }
+  next();
+};
 
+export const validateAmbienteUpdatePayload = (req: Request, res: Response, next: NextFunction): void => {
+  if (!isRoomPayload(req.body, true)) {
+    res.status(400).json({
+      success: false,
+      code: "VALIDATION_ERROR",
+      error: "Envía al menos un campo válido para actualizar el ambiente."
+    });
+    return;
+  }
   next();
 };
