@@ -1,32 +1,51 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from "express";
+import { equipmentService } from "../container.js";
+import { getRouteParam } from "../utils/route-param.js";
 
 export class EquipoController {
-  public static getAll = (_req: Request, res: Response): void => {
-    res.status(501).json({
-      success: false,
-      message: 'La consulta de equipos todavía no está implementada.'
-    });
+  static getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const roomId = typeof req.query.roomId === "string" ? req.query.roomId : undefined;
+      const estado = typeof req.query.estado === "string" ? req.query.estado : undefined;
+      const tipo = typeof req.query.tipo === "string" ? req.query.tipo : undefined;
+      res.status(200).json({ success: true, data: await equipmentService.list({ roomId, estado, tipo }) });
+    } catch (error) {
+      next(error);
+    }
   };
 
-  public static getLoansByFilter = (req: Request, res: Response): void => {
-    res.status(501).json({
-      success: false,
-      message: 'La consulta de equipos por filtro todavía no está implementada.'
-    });
+  static getById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = getRouteParam(req.params.id, "id");
+      res.status(200).json({ success: true, data: await equipmentService.getById(id) });
+    } catch (error) {
+      next(error);
+    }
   };
 
-  public static create = (req: Request, res: Response): void => {
-    res.status(501).json({
-      success: false,
-      message: 'El registro de equipos todavía no está implementado.'
-    });
-  }
+  static create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      res.status(201).json({ success: true, data: await equipmentService.create(req.body) });
+    } catch (error) {
+      next(error);
+    }
+  };
 
-  public static update = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    res.status(501).json({
-      success: false,
-      message: `La actualización del equipo ${id} todavía no está implementada.`
-    });
+  static update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = getRouteParam(req.params.id, "id");
+      res.status(200).json({ success: true, data: await equipmentService.update(id, req.body) });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static move = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = getRouteParam(req.params.id, "id");
+      res.status(200).json({ success: true, data: await equipmentService.update(id, { roomId: req.body.roomId }) });
+    } catch (error) {
+      next(error);
+    }
   };
 }

@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from "express";
 
 export const requestLogger = (
-  req: Request, 
-  res: Response, 
+  req: Request,
+  _res: Response,
   next: NextFunction
 ): void => {
   const timestamp = new Date().toISOString();
