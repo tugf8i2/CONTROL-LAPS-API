@@ -1,33 +1,9 @@
-import type { Request, Response } from 'express';
-
+import type { Request, Response, NextFunction } from 'express';
+import { roomsDb } from '../services/room.prisma.service';
+const idParam=(v:string|string[]):string=>{if(typeof v!=="string"||!v.trim())throw new Error("Parámetro inválido");return v;};
 export class AmbienteController {
-  public static getAll = (_req: Request, res: Response): void => {
-    res.status(501).json({
-      success: false,
-      message: 'La consulta de ambientes todavía no está implementada.'
-    });
-  };
-
-  public static getLoansByFilter = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    res.status(501).json({
-      success: false,
-      message: `La consulta del ambiente ${id} todavía no está implementada.`
-    });
-  };
-
-  public static create = (req: Request, res: Response): void => {
-    res.status(501).json({
-      success: false,
-      message: 'El registro de ambientes todavía no está implementado.'
-    });
-  };
-
-  public static update = (req: Request, res: Response): void => {
-    const { id } = req.params;
-    res.status(501).json({
-      success: false,
-      message: `La actualización del ambiente ${id} todavía no está implementada.`
-    });
-  };
+ static getAll=async(_req:Request,res:Response,next:NextFunction):Promise<void>=>{try{res.status(200).json({success:true,data:await roomsDb.list()});}catch(e){next(e);}};
+ static getLoansByFilter=async(req:Request,res:Response,next:NextFunction):Promise<void>=>{try{res.status(200).json({success:true,data:await roomsDb.update(idParam(req.params.id),{})});}catch(e){next(e);}};
+ static create=async(req:Request,res:Response,next:NextFunction):Promise<void>=>{try{res.status(201).json({success:true,data:await roomsDb.create(req.body)});}catch(e){next(e);}};
+ static update=async(req:Request,res:Response,next:NextFunction):Promise<void>=>{try{res.status(200).json({success:true,data:await roomsDb.update(idParam(req.params.id),req.body)});}catch(e){next(e);}};
 }
