@@ -1,5 +1,5 @@
 {
-  "name": "controllabs-api",
+  "name": "rest-api",
   "version": "1.0.0",
   "description": "API de gestión de ambientes, inventario, préstamos y novedades",
   "main": "dist/server.js",

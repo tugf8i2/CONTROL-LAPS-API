@@ -9,7 +9,7 @@ export class InMemoryRepository<T extends Entity> implements Repository<T> {
   constructor(private readonly numericIds = false) {}
 
   create(input: Omit<T, 'id'>): T {
-    const id = (this.numericIds ? this.nextId++ : randomUUID()) as T['id'];
+    const id = (this.numericIds ? this.nextId++ : randomUUID()) as unknown as T['id'];
     const item = { ...structuredClone(input), id } as T;
     this.items.set(String(id), item);
     return structuredClone(item);
@@ -19,7 +19,7 @@ export class InMemoryRepository<T extends Entity> implements Repository<T> {
     const entries = Object.entries(filters);
     return [...this.items.values()]
       .filter((item) => entries.every(([key, value]) =>
-        value === undefined || (item as Record<string, unknown>)[key] === value
+        value === undefined || (item as unknown as Record<string, unknown>)[key] === value
       ))
       .map((item) => structuredClone(item));
   }
